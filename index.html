@@ -1,840 +1,298 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Neon Breaker — Juego HTML</title>
-<meta name="description" content="Un Breakout moderno con power-ups, controles móviles, sonido, guardado de récord y efectos.">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Ejecutor de HTML — Pega y corre</title>
+<meta name="description" content="Pega un documento HTML completo (con CSS y JS) y ejecútalo al instante." />
 <style>
   :root{
-    --bg1:#0b0f14;
-    --bg2:#101820;
-    --accent:#00e5ff;
-    --accent2:#ff00e0;
-    --good:#00ffa8;
-    --warn:#ffd84d;
-    --danger:#ff4d4d;
-    --text:#e6f1ff;
-    --muted:#9db0c8;
+    --bg:#0f1115;
+    --panel:#151923;
+    --panel-2:#0f1521;
+    --text:#e6e9ef;
+    --muted:#aab2c0;
+    --accent:#5b9cff;
+    --border:#232b3a;
+    --ok:#2ecc71;
   }
-  html,body{
-    height:100%;
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
     margin:0;
-    background: radial-gradient(120% 120% at 80% 10%, var(--bg2), var(--bg1));
+    background:linear-gradient(180deg,var(--bg),#0b0e14);
     color:var(--text);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    overscroll-behavior:none;
-    touch-action: none;
-  }
-  .wrap{
-    display:flex;
-    flex-direction:column;
-    height:100dvh;
-    max-height:100dvh;
+    font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
   }
   header{
-    display:flex;
-    align-items:center;
-    gap:.75rem;
-    padding:.6rem .9rem;
-    background: linear-gradient(90deg, rgba(0,229,255,.12), rgba(255,0,224,.12));
-    border-bottom:1px solid rgba(255,255,255,.08);
-    user-select:none;
+    position:sticky;top:0;z-index:10;
+    display:flex;gap:12px;align-items:center;justify-content:space-between;
+    padding:12px 16px;border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,var(--panel),rgba(21,25,35,.8));
+    backdrop-filter:saturate(1.2) blur(6px);
   }
-  header h1{
-    font-size:1.05rem;
-    margin:0;
-    letter-spacing:.2px;
-    font-weight:700;
+  .brand{display:flex;gap:10px;align-items:center}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
+  .title{font-weight:700;letter-spacing:.2px}
+  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  button,.toggle{
+    background:var(--panel-2);color:var(--text);
+    border:1px solid var(--border);border-radius:8px;
+    padding:8px 12px;cursor:pointer;font-weight:600;
   }
-  header .badge{
-    margin-left:auto;
-    font-size:.8rem;
-    color:var(--muted);
+  button:hover{border-color:#2b364d}
+  .toggle{display:flex;gap:8px;align-items:center;user-select:none}
+  .toggle input{appearance:none;width:36px;height:20px;border-radius:999px;background:#2a3245;position:relative;outline:none;transition:.2s}
+  .toggle input:checked{background:#1f7bff}
+  .toggle input::after{
+    content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:white;transition:.2s
   }
-  #hud{
-    display:flex;
-    align-items:center;
-    gap:1rem;
-    padding:.5rem .9rem;
-    font-size:.95rem;
-    border-bottom:1px solid rgba(255,255,255,.06);
-    user-select:none;
-  }
-  #hud .pill{
-    display:inline-flex; align-items:center; gap:.5rem;
-    padding:.35rem .6rem;
-    background:rgba(255,255,255,.06);
-    border:1px solid rgba(255,255,255,.08);
-    border-radius:999px;
-  }
-  #hud .life{ color:var(--warn);}
-  #hud .score{ color:var(--good);}
-  #hud .level{ color:var(--accent);}
-  #hud button{
-    margin-left:auto;
-    padding:.4rem .7rem;
-    border-radius:8px;
-    background:rgba(255,255,255,.08);
-    border:1px solid rgba(255,255,255,.12);
-    color:var(--text);
-    cursor:pointer;
-  }
-  #hud button:hover{ background:rgba(255,255,255,.12); }
-  #gameArea{
-    position:relative;
-    flex:1;
-    min-height:0;
+  .toggle input:checked::after{transform:translateX(16px)}
+  main{
+    height:calc(100% - 58px);
     display:grid;
-    place-items:center;
+    grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
+    gap:0;
   }
-  canvas{
-    max-width:100%;
-    max-height:100%;
-    background: radial-gradient(120% 120% at 10% 10%, #0f1320 0%, #0a0e14 60%, #070a0d 100%);
-    border:1px solid rgba(255,255,255,.06);
-    border-radius:12px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.5), inset 0 0 60px rgba(0,229,255,.05), inset 0 0 60px rgba(255,0,224,.04);
+  .pane{
+    height:100%;display:flex;flex-direction:column;min-height:0;
   }
-  .overlay{
-    position:absolute; inset:0;
-    display:grid; place-items:center;
-    text-align:center;
-    padding:1rem;
-    pointer-events:none;
+  .pane h2{
+    margin:0;padding:10px 14px;border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,var(--panel),#121725);
+    font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;
   }
-  .card{
-    pointer-events:auto;
-    background:rgba(4,8,12,.82);
-    backdrop-filter: blur(8px);
-    border:1px solid rgba(255,255,255,.15);
-    padding:1.1rem 1rem;
-    max-width:680px;
-    border-radius:12px;
-    box-shadow: 0 10px 40px rgba(0,0,0,.55);
+  .editor-wrap{position:relative;flex:1;min-height:0;background:#0b0f18}
+  textarea{
+    width:100%;height:100%;border:0;outline:none;resize:none;
+    background:transparent;color:#e7ecf5;padding:14px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    line-height:1.45;font-size:13px;tab-size:2;caret-color:#7ab7ff;
   }
-  .card h2{ margin:.2rem 0 .6rem; font-size:1.4rem; }
-  .card p{ margin:.35rem 0; color:var(--muted); }
-  .kbd{
-    display:inline-block; padding:.08rem .4rem; border:1px solid rgba(255,255,255,.25);
-    border-bottom-width:2px; border-radius:6px; font-weight:700; color:var(--text);
-    background:rgba(255,255,255,.06);
+  .status{
+    font-size:12px;color:var(--muted);
+    display:flex;align-items:center;gap:8px;
   }
-  .startBtn, .resumeBtn, .restartBtn{
-    display:inline-block; margin-top:.8rem; padding:.6rem 1rem; border-radius:10px;
-    background: linear-gradient(90deg, rgba(0,229,255,.2), rgba(255,0,224,.2));
-    border:1px solid rgba(255,255,255,.18);
-    color:var(--text); cursor:pointer; font-weight:800; letter-spacing:.2px;
+  .status .led{width:8px;height:8px;border-radius:50%;background:#ffbd2e;box-shadow:0 0 10px #ffbd2e}
+  .status.ok .led{background:var(--ok);box-shadow:0 0 10px var(--ok)}
+  iframe{
+    width:100%;height:100%;border:0;background:white;
   }
-  .mobileControls{
-    position:absolute; inset:auto 0 10px 0; display:flex; gap:.6rem; justify-content:center; pointer-events:none;
+  .bar{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:10px;
   }
-  .btn{
-    pointer-events:auto;
-    min-width:64px; min-height:64px;
-    border-radius:12px; border:1px solid rgba(255,255,255,.15);
-    background:rgba(255,255,255,.08);
-    display:flex; align-items:center; justify-content:center;
-    font-weight:900; font-size:1.1rem; color:var(--text);
-    user-select:none;
-    touch-action: manipulation;
+  .hint{font-size:12px;color:var(--muted)}
+  .footer-note{
+    position:fixed;bottom:8px;right:12px;font-size:12px;color:var(--muted);opacity:.75
   }
-  .btn:active{ transform: scale(.98); }
-  .legend{ position:absolute; top:10px; right:10px; font-size:.85rem; color:var(--muted); }
-  .muted { color: var(--muted); }
-  footer{
-    padding:.4rem .9rem; font-size:.8rem; color:var(--muted); text-align:center;
-  }
-  @media (max-width: 740px){
-    header h1{ font-size: .95rem; }
-    #hud{ gap:.6rem; font-size:.9rem; flex-wrap:wrap; }
-    .card h2{ font-size:1.2rem; }
+  input[type="file"]{display:none}
+  .link-like{cursor:pointer;text-decoration:underline; color:#9bc3ff}
+  @media (max-width: 900px){
+    main{grid-template-columns:1fr;grid-auto-rows:1fr;height:auto}
+    .pane{height:60vh}
   }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <h1>🎮 Neon Breaker</h1>
-      <div class="badge">HTML5 · Sin dependencias</div>
-    </header>
-    <div id="hud">
-      <div class="pill life">❤ Vidas: <span id="lives">3</span></div>
-      <div class="pill score">★ Puntos: <span id="score">0</span></div>
-      <div class="pill level">⬛ Nivel: <span id="level">1</span></div>
-      <button id="muteBtn" title="Silencio (M)">🔊 Sonido</button>
-      <button id="pauseBtn" title="Pausa (P)">⏸️ Pausa</button>
-      <button id="helpBtn" title="Ayuda (?)">❔ Ayuda</button>
+  <header>
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <div class="title">Ejecutor de HTML</div>
     </div>
-    <div id="gameArea">
-      <canvas id="game" width="960" height="540" aria-label="Lienzo del juego"></canvas>
-
-      <div class="overlay" id="menuOverlay">
-        <div class="card">
-          <h2>Listo para romper ladrillos con estilo ✨</h2>
-          <p>Mueve la paleta y destruye todos los ladrillos para avanzar. ¡Aprovecha los <b>power-ups</b>!</p>
-          <p><span class="kbd">←</span> / <span class="kbd">→</span> o <b>mouse</b> · <span class="kbd">Espacio</span> para lanzar · <span class="kbd">P</span> pausa · <span class="kbd">M</span> silencio</p>
-          <p class="muted">En móviles: botones táctiles en pantalla.</p>
-          <button class="startBtn" id="startBtn">Comenzar</button>
-        </div>
-      </div>
-
-      <div class="overlay" id="pauseOverlay" style="display:none;">
-        <div class="card">
-          <h2>Juego en pausa ⏸️</h2>
-          <p>Presiona <span class="kbd">P</span> o toca <b>Reanudar</b>.</p>
-          <button class="resumeBtn" id="resumeBtn">Reanudar</button>
-        </div>
-      </div>
-
-      <div class="overlay" id="gameOverOverlay" style="display:none;">
-        <div class="card">
-          <h2 id="gameOverTitle">Juego terminado</h2>
-          <p id="finalScore"></p>
-          <p id="bestScore"></p>
-          <button class="restartBtn" id="restartBtn">Reintentar</button>
-        </div>
-      </div>
-
-      <div class="legend">v1.0</div>
-
-      <div class="mobileControls" id="mobileControls" hidden>
-        <div class="btn" id="leftBtn">⟵</div>
-        <div class="btn" id="launchBtn">⤴</div>
-        <div class="btn" id="rightBtn">⟶</div>
-      </div>
+    <div class="actions">
+      <label class="toggle" title="Ejecuta al escribir">
+        <input id="autoRun" type="checkbox" checked />
+        Auto
+      </label>
+      <button id="runBtn" title="Ejecutar (Ctrl/Cmd + Enter)">Ejecutar</button>
+      <button id="downloadBtn" title="Descargar el HTML del editor">Descargar .html</button>
+      <label class="link-like" for="fileInput" title="Cargar un archivo .html">Abrir archivo…</label>
+      <input id="fileInput" type="file" accept=".html,.htm,text/html" />
     </div>
-    <footer>
-      Hecho con ❤️ en HTML5 Canvas. Guarda tu récord automáticamente.
-    </footer>
-  </div>
+  </header>
+
+  <main>
+    <section class="pane">
+      <h2 class="bar">
+        <span>Editor</span>
+        <span class="hint">Pega aquí tu documento HTML completo (con CSS y JS).</span>
+      </h2>
+      <div class="editor-wrap">
+        <textarea id="code" spellcheck="false" autofocus>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demo rápida — Todo en uno</title>
+  <style>
+    :root{--brand:#5b9cff}
+    body{margin:0;font:16px/1.4 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#10131a;color:#e9eef7}
+    header{position:sticky;top:0;background:#0f1420;padding:14px 16px;border-bottom:1px solid #1f2a3e}
+    h1{margin:0;font-size:18px}
+    main{max-width:900px;margin:0 auto;padding:20px}
+    .card{background:#0b0f18;border:1px solid #1b2436;border-radius:12px;padding:18px;margin:14px 0}
+    .btn{
+      background:var(--brand);color:#000;font-weight:700;border:0;border-radius:10px;padding:10px 14px;
+      cursor:pointer;box-shadow:0 6px 18px rgba(91,156,255,.25)
+    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:700px){.grid{grid-template-columns:1fr}}
+    .tag{display:inline-block;background:#0b1628;border:1px solid #1f2a3e;color:#9bc3ff;padding:6px 10px;border-radius:999px;font-size:12px}
+  </style>
+</head>
+<body>
+  <header><h1>¡Hola! Esto es tu HTML + CSS + JS en un solo archivo</h1></header>
+  <main>
+    <div class="card">
+      <p>Si ves este contenido, ya está ejecutándose el documento que pegaste aquí.</p>
+      <p class="grid">
+        <span class="tag">HTML</span>
+        <span class="tag">CSS</span>
+        <span class="tag">JavaScript</span>
+        <span class="tag">Responsivo</span>
+      </p>
+      <button class="btn" id="accion">Probar JavaScript</button>
+      <p id="salida" aria-live="polite"></p>
+    </div>
+  </main>
+
+  <script>
+    // JS de ejemplo para demostrar que funciona:
+    const btn = document.getElementById('accion');
+    const out = document.getElementById('salida');
+    btn?.addEventListener('click', ()=>{
+      const t = new Date().toLocaleTimeString();
+      out.textContent = "✅ JS funcionando. Click a las " + t;
+    });
+  </script>
+</body>
+</html>
+        </textarea>
+      </div>
+    </section>
+
+    <section class="pane">
+      <h2 class="bar">
+        <span>Vista previa</span>
+        <span class="status" id="status"><span class="led"></span>Esperando…</span>
+      </h2>
+      <iframe id="preview" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation" referrerpolicy="no-referrer"></iframe>
+    </section>
+  </main>
+
+  <div class="footer-note">Consejo: usa <b>Ctrl/Cmd + Enter</b> para ejecutar.</div>
 
 <script>
-(()=>{
-  // ===== Utilidades y estado global =====
-  const $ = sel => document.querySelector(sel);
-  const canvas = $("#game");
-  const ctx = canvas.getContext("2d");
-  const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-  const state = {
-    running:false, paused:false, started:false,
-    width:960, height:540, // se ajustará en resize
-    score:0, lives:3, level:0, bricks:[], balls:[], paddle:null, particles:[], powerups:[],
-    keys:{left:false,right:false,space:false},
-    mouseX:null,
-    muted:false,
-    audioUnlocked:false,
-    best: parseInt(localStorage.getItem("nb_best")||"0",10),
-  };
+(function(){
+  const codeEl = document.getElementById('code');
+  const frame = document.getElementById('preview');
+  const runBtn = document.getElementById('runBtn');
+  const autoRun = document.getElementById('autoRun');
+  const status = document.getElementById('status');
+  const fileInput = document.getElementById('fileInput');
+  const downloadBtn = document.getElementById('downloadBtn');
 
-  const ui = {
-    lives: $("#lives"),
-    score: $("#score"),
-    level: $("#level"),
-    muteBtn: $("#muteBtn"),
-    pauseBtn: $("#pauseBtn"),
-    helpBtn: $("#helpBtn"),
-    menu: $("#menuOverlay"),
-    pause: $("#pauseOverlay"),
-    gameOver: $("#gameOverOverlay"),
-    gameOverTitle: $("#gameOverTitle"),
-    finalScore: $("#finalScore"),
-    bestScore: $("#bestScore"),
-    startBtn: $("#startBtn"),
-    resumeBtn: $("#resumeBtn"),
-    restartBtn: $("#restartBtn"),
-    mobile: $("#mobileControls"),
-    btnLeft: $("#leftBtn"),
-    btnRight: $("#rightBtn"),
-    btnLaunch: $("#launchBtn"),
-  };
+  const STORAGE_KEY = 'html_executor_code_v1';
+  const STORAGE_AUTO = 'html_executor_auto_v1';
 
-  // ===== Audio simple (beeps con WebAudio) =====
-  let audioCtx=null;
-  function unlockAudio(){
-    if(state.audioUnlocked) return;
+  // Restaurar estado guardado
+  try{
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if(saved) codeEl.value = saved;
+    const savedAuto = localStorage.getItem(STORAGE_AUTO);
+    if(savedAuto !== null) autoRun.checked = savedAuto === '1';
+  }catch(err){ /* modo privado o restricción */ }
+
+  // Debounce para auto-ejecución
+  let t;
+  function debounceRun(){
+    clearTimeout(t);
+    if(!autoRun.checked) return;
+    t = setTimeout(execute, 500);
+  }
+
+  function setStatusOk(msg){
+    status.classList.add('ok');
+    status.innerHTML = '<span class="led"></span>' + (msg || 'Ejecutado');
+  }
+  function setStatusWait(msg){
+    status.classList.remove('ok');
+    status.innerHTML = '<span class="led"></span>' + (msg || 'Esperando…');
+  }
+
+  function wrapWithBase(html){
+    // Asegura que los enlaces se abran en nueva pestaña y que funcione en srcdoc
+    // Si el documento ya tiene <head>, insertamos <base> dentro; si no, lo añadimos al inicio.
+    const baseTag = '<base target="_blank">';
+    if (/<head[^>]*>/i.test(html)) {
+      return html.replace(/<head([^>]*)>/i, (m, p1)=> `<head$1>${baseTag}`);
+    }
+    // Si tiene <html> pero no <head>, creamos uno
+    if (/<html[^>]*>/i.test(html)) {
+      return html.replace(/<html([^>]*)>/i, (m, p1)=> `<html$1><head>${baseTag}</head>`);
+    }
+    // Documento simple: añadimos al inicio
+    return `<!doctype html><head>${baseTag}</head>${html}`;
+  }
+
+  function execute(){
+    const html = codeEl.value;
+    // Guardar
     try{
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      // En iOS, resume en gesto
-      audioCtx.resume();
-      state.audioUnlocked = true;
-    }catch(e){
-      // sin audio
-      state.audioUnlocked = false;
-    }
-  }
-  function beep(freq=440, time=0.06, type="sine", vol=0.12){
-    if(state.muted || !state.audioUnlocked || !audioCtx) return;
-    const o = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    o.type = type;
-    o.frequency.value = freq;
-    o.connect(g);
-    g.connect(audioCtx.destination);
-    g.gain.setValueAtTime(vol, audioCtx.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + time);
-    o.start();
-    o.stop(audioCtx.currentTime + time);
-  }
-  const sfx = {
-    bounce:()=>beep(740, .05, "square", .08),
-    brick: ()=>beep(520, .08, "sawtooth", .12),
-    power: ()=>beep(880, .09, "triangle", .12),
-    lose:  ()=>beep(220, .20, "sine", .16),
-    win:   ()=>beep(990, .18, "triangle", .14),
-  };
+      localStorage.setItem(STORAGE_KEY, html);
+    }catch(err){/* ignorar */ }
 
-  // ===== Redimensionar Canvas para alta resolución =====
-  function resize(){
-    const rect = canvas.getBoundingClientRect();
-    state.width = Math.floor(rect.width * dpr);
-    state.height = Math.floor(rect.height * dpr);
-    canvas.width = state.width;
-    canvas.height = state.height;
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.scale(dpr, dpr);
-    // Mantener paleta dentro
-    if(state.paddle){
-      state.paddle.y = (state.height/dpr) - 40;
-      state.paddle.w = Math.max(60, Math.min((state.width/dpr)*0.18, 180));
-    }
-  }
-  new ResizeObserver(resize).observe(canvas);
-
-  // ===== Entidades =====
-  class Paddle{
-    constructor(){
-      this.w = 140;
-      this.h = 14;
-      this.x = (canvas.clientWidth - this.w)/2;
-      this.y = (canvas.clientHeight - 40);
-      this.speed = 8;
-      this.sticky = false;
-    }
-    update(){
-      const vw = canvas.clientWidth;
-      if(state.keys.left) this.x -= this.speed;
-      if(state.keys.right) this.x += this.speed;
-      if(state.mouseX!=null){
-        // seguir al mouse suavizado
-        this.x += (state.mouseX - (this.x + this.w/2)) * 0.2;
-      }
-      // táctil botones
-      if(touching.left) this.x -= this.speed*1.1;
-      if(touching.right) this.x += this.speed*1.1;
-
-      if(this.x < 4) this.x = 4;
-      if(this.x + this.w > vw-4) this.x = vw-4 - this.w;
-    }
-    draw(){
-      const r = 8;
-      ctx.save();
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = "rgba(0,229,255,.75)";
-      ctx.fillStyle = "rgba(0,229,255,.8)";
-      roundRect(ctx, this.x, this.y, this.w, this.h, r, true, false);
-      ctx.shadowBlur = 0;
-      if(this.sticky){
-        ctx.fillStyle = "rgba(255,255,255,.15)";
-        roundRect(ctx, this.x, this.y-3, this.w, 3, r, true, false);
-      }
-      ctx.restore();
-    }
+    setStatusWait('Ejecutando…');
+    // Actualizar la vista previa
+    frame.srcdoc = wrapWithBase(html);
+    // Esperar a que cargue
+    const onLoad = () => {
+      setStatusOk('Ejecutado');
+      frame.removeEventListener('load', onLoad);
+    };
+    frame.addEventListener('load', onLoad);
   }
 
-  class Ball{
-    constructor(x,y,speed=5){
-      this.r = 8;
-      this.x = x; this.y = y;
-      const angle = (-Math.PI/3) + (Math.random()*Math.PI/6); // arriba con variación
-      this.vx = Math.cos(angle)*speed;
-      this.vy = Math.sin(angle)*speed;
-      this.speed = speed;
-      this.stuck = false; // si está pegada a la paleta
-    }
-    update(){
-      if(this.stuck){
-        this.x = state.paddle.x + state.paddle.w/2;
-        this.y = state.paddle.y - this.r - 1;
-        return;
-      }
-      this.x += this.vx;
-      this.y += this.vy;
-
-      // paredes
-      if(this.x - this.r < 0){ this.x = this.r; this.vx *= -1; sfx.bounce(); }
-      if(this.x + this.r > canvas.clientWidth){ this.x = canvas.clientWidth - this.r; this.vx *= -1; sfx.bounce(); }
-      if(this.y - this.r < 0){ this.y = this.r; this.vy *= -1; sfx.bounce(); }
-      // fondo -> perder bola
-      if(this.y - this.r > canvas.clientHeight){
-        // eliminar esta bola
-        const i = state.balls.indexOf(this);
-        if(i>=0) state.balls.splice(i,1);
-        if(state.balls.length===0) loseLife();
-      }
-
-      // colisión con paleta
-      const p = state.paddle;
-      if(this.y + this.r >= p.y && this.y + this.r <= p.y + p.h + 8 &&
-         this.x >= p.x - this.r && this.x <= p.x + p.w + this.r && this.vy>0){
-        // calcular ángulo basado en punto de impacto
-        const hit = (this.x - (p.x + p.w/2)) / (p.w/2);
-        const maxBounce = Math.PI*0.72; // +/- ~130°
-        const angle = hit * (maxBounce/2);
-        const sp = Math.hypot(this.vx,this.vy);
-        this.vx = Math.sin(angle) * sp;
-        this.vy = -Math.cos(angle) * sp;
-        this.y = p.y - this.r - 1;
-        sfx.bounce();
-        if(p.sticky){
-          this.stuck = true;
-        }
-      }
-
-      // colisión con ladrillos
-      for(let b of state.bricks){
-        if(b.hp<=0) continue;
-        if(this.x + this.r > b.x && this.x - this.r < b.x + b.w &&
-           this.y + this.r > b.y && this.y - this.r < b.y + b.h){
-          // determinar lado
-          const overlapX = (b.x + b.w/2) - this.x;
-          const overlapY = (b.y + b.h/2) - this.y;
-          if(Math.abs(overlapX) > Math.abs(overlapY)){
-            this.vx *= -1;
-          }else{
-            this.vy *= -1;
-          }
-          hitBrick(b);
-          break;
-        }
-      }
-    }
-    draw(){
-      ctx.save();
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "rgba(255,0,224,.8)";
-      ctx.fillStyle = "rgba(255,0,224,.9)";
-      circle(ctx, this.x, this.y, this.r);
-      ctx.restore();
-    }
-  }
-
-  class Brick{
-    constructor(x,y,w,h,hp=1,color="#7afcff"){
-      this.x=x; this.y=y; this.w=w; this.h=h; this.hp=hp; this.max=hp; this.color=color;
-    }
-    draw(){
-      if(this.hp<=0) return;
-      ctx.save();
-      const t = this.hp/this.max;
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = this.color;
-      ctx.fillStyle = this.color;
-      roundRect(ctx, this.x, this.y, this.w, this.h, 6, true, false);
-      // barra de vida sutil si más de 1 golpe
-      if(this.max>1){
-        ctx.fillStyle = "rgba(0,0,0,.35)";
-        roundRect(ctx, this.x+4, this.y+this.h-6, this.w-8, 4, 3, true, false);
-        ctx.fillStyle = "rgba(255,255,255,.6)";
-        roundRect(ctx, this.x+4, this.y+this.h-6, (this.w-8)*t, 4, 3, true, false);
-      }
-      ctx.restore();
-    }
-  }
-
-  class PowerUp{
-    constructor(x,y,type){
-      this.x=x; this.y=y; this.w=20; this.h=20; this.type=type;
-      this.vy=2.3;
-    }
-    update(){
-      this.y += this.vy;
-      if(this.y>canvas.clientHeight+30) this.dead=true;
-      // recoge paleta
-      const p=state.paddle;
-      if(this.x < p.x+p.w && this.x+this.w > p.x &&
-         this.y < p.y+p.h && this.y+this.h > p.y){
-        this.dead=true;
-        applyPowerUp(this.type);
-      }
-    }
-    draw(){
-      ctx.save();
-      ctx.shadowBlur=12;
-      const map = {
-        "E": "#00ffa8", // expand
-        "S": "#ffd84d", // slow
-        "M": "#ff66d9", // multiball
-        "T": "#9db0c8", // sticky (tacky)
-        "+": "#7afcff", // life
-      };
-      const c = map[this.type] || "#fff";
-      ctx.shadowColor=c;
-      ctx.strokeStyle=c;
-      ctx.fillStyle="rgba(255,255,255,.08)";
-      roundRect(ctx, this.x, this.y, this.w, this.h, 6, true, true);
-      ctx.fillStyle=c;
-      ctx.font="bold 14px system-ui, -apple-system, Segoe UI, Roboto, Arial";
-      ctx.textAlign="center"; ctx.textBaseline="middle";
-      ctx.fillText(this.type, this.x+this.w/2, this.y+this.h/2+1);
-      ctx.restore();
-    }
-  }
-
-  class Particle{
-    constructor(x,y,c){
-      this.x=x; this.y=y; this.vx=(Math.random()-0.5)*5; this.vy=(Math.random()-1.2)*5;
-      this.life=30+Math.random()*20; this.c=c;
-    }
-    update(){
-      this.x+=this.vx; this.y+=this.vy; this.vy+=0.12;
-      this.life--;
-      if(this.life<=0) this.dead=true;
-    }
-    draw(){
-      ctx.save();
-      ctx.globalAlpha = Math.max(0, this.life/50);
-      ctx.fillStyle=this.c;
-      circle(ctx,this.x,this.y,2.2);
-      ctx.restore();
-    }
-  }
-
-  // ===== Helpers de dibujo =====
-  function circle(ctx,x,y,r){
-    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
-  }
-  function roundRect(ctx, x, y, w, h, r, fill, stroke){
-    if (typeof r === 'number') r = {tl:r, tr:r, br:r, bl:r};
-    ctx.beginPath();
-    ctx.moveTo(x+r.tl, y);
-    ctx.lineTo(x+w-r.tr, y);
-    ctx.quadraticCurveTo(x+w, y, x+w, y+r.tr);
-    ctx.lineTo(x+w, y+h-r.br);
-    ctx.quadraticCurveTo(x+w, y+h, x+w-r.br, y+h);
-    ctx.lineTo(x+r.bl, y+h);
-    ctx.quadraticCurveTo(x, y+h, x, y+h-r.bl);
-    ctx.lineTo(x, y+r.tl);
-    ctx.quadraticCurveTo(x, y, x+r.tl, y);
-    if(fill) ctx.fill();
-    if(stroke) ctx.stroke();
-  }
-
-  // ===== Niveles =====
-  const LEVELS = [
-    // nivel 1
-    { rows: 5, cols: 10, hp:1, colors:["#7afcff","#b692ff","#ff8fab","#ffd84d"], gap: 4 },
-    // nivel 2
-    { rows: 6, cols: 11, hp:1, pattern:"checker", colors:["#00ffa8","#7afcff","#ffd84d"], gap:4 },
-    // nivel 3
-    { rows: 7, cols: 12, hp:2, pattern:"wedge", colors:["#ff66d9","#7afcff","#ffd84d","#00ffa8"], gap:3 },
-    // nivel 4 (bonus)
-    { rows: 8, cols: 13, hp:2, pattern:"rainbow", colors:["#7afcff","#00ffa8","#ffd84d","#ff8fab","#b692ff"], gap:3 },
-  ];
-
-  function buildLevel(n){
-    const level = LEVELS[n % LEVELS.length];
-    const area = { x: 30, y: 40, w: canvas.clientWidth-60, h: (canvas.clientHeight*0.45) };
-    const bw = (area.w - (level.cols-1)*level.gap)/level.cols;
-    const bh = Math.min(28, (area.h - (level.rows-1)*level.gap)/level.rows);
-    const bricks = [];
-    for(let r=0;r<level.rows;r++){
-      for(let c=0;c<level.cols;c++){
-        let hp = level.hp;
-        let include = true;
-        if(level.pattern==="checker"){
-          include = ((r+c)%2===0);
-          if(!include && Math.random()<0.2) include=true;
-        }else if(level.pattern==="wedge"){
-          const center = Math.floor(level.cols/2);
-          include = Math.abs(c-center) <= r+1;
-        }else{
-          include = true;
-        }
-        if(!include) continue;
-        const x = area.x + c*(bw+level.gap);
-        const y = area.y + r*(bh+level.gap);
-        const color = level.colors[(r+c)%level.colors.length];
-        bricks.push(new Brick(x,y,bw,bh,hp,color));
-      }
-    }
-    state.bricks = bricks;
-    ui.level.textContent = (state.level+1);
-  }
-
-  // ===== Juego =====
-  function resetGame(){
-    state.score = 0;
-    state.lives = 3;
-    state.level = 0;
-    state.paddle = new Paddle();
-    state.balls = [new Ball(canvas.clientWidth/2, canvas.clientHeight-60, 5)];
-    state.balls[0].stuck = true; // iniciar pegada a paleta
-    state.powerups = [];
-    state.particles = [];
-    buildLevel(state.level);
-    updateHUD();
-  }
-
-  function nextLevel(){
-    state.level++;
-    if(state.level>=LEVELS.length){
-      // Victoria
-      endGame(true);
-      sfx.win();
-      return;
-    }
-    state.paddle = new Paddle();
-    state.balls = [new Ball(canvas.clientWidth/2, canvas.clientHeight-60, 5)];
-    state.balls[0].stuck = true;
-    state.powerups = [];
-    state.particles = [];
-    buildLevel(state.level);
-    updateHUD();
-  }
-
-  function loseLife(){
-    state.lives--;
-    updateHUD();
-    sfx.lose();
-    if(state.lives<=0){
-      endGame(false);
-      return;
-    }
-    // nueva bola
-    const b = new Ball(canvas.clientWidth/2, canvas.clientHeight-60, 5);
-    b.stuck = true;
-    state.balls=[b];
-    state.paddle.sticky = false;
-  }
-
-  function updateHUD(){
-    ui.lives.textContent = state.lives;
-    ui.score.textContent = state.score;
-    ui.level.textContent = (state.level+1);
-  }
-
-  function hitBrick(brick){
-    if(brick.hp<=0) return;
-    brick.hp--;
-    state.score += 10;
-    updateHUD();
-    sfx.brick();
-    // partículas
-    for(let i=0;i<10;i++){
-      state.particles.push(new Particle(brick.x + Math.random()*brick.w, brick.y + Math.random()*brick.h, brick.color));
-    }
-    // power-up?
-    if(brick.hp<=0){
-      // chance
-      const chance = Math.random();
-      if(chance<0.12) state.powerups.push(new PowerUp(brick.x+brick.w/2-10, brick.y+brick.h/2-10, "E"));
-      else if(chance<0.22) state.powerups.push(new PowerUp(brick.x+brick.w/2-10, brick.y+brick.h/2-10, "M"));
-      else if(chance<0.30) state.powerups.push(new PowerUp(brick.x+brick.w/2-10, brick.y+brick.h/2-10, "S"));
-      else if(chance<0.36) state.powerups.push(new PowerUp(brick.x+brick.w/2-10, brick.y+brick.h/2-10, "T"));
-      else if(chance<0.40) state.powerups.push(new PowerUp(brick.x+brick.w/2-10, brick.y+brick.h/2-10, "+"));
-    }
-    // todos destruidos?
-    if(state.bricks.every(b=>b.hp<=0)){
-      setTimeout(nextLevel, 400);
-    }
-  }
-
-  function applyPowerUp(type){
-    sfx.power();
-    if(type==="E"){
-      state.paddle.w = Math.min(state.paddle.w * 1.35, canvas.clientWidth*0.35);
-    }else if(type==="S"){
-      for(const b of state.balls){
-        b.vx *= 0.85; b.vy *= 0.85;
-      }
-    }else if(type==="M"){
-      // duplicar bolas
-      const clones=[];
-      for(const b of state.balls){
-        const nb = new Ball(b.x, b.y, Math.hypot(b.vx,b.vy));
-        nb.vx = b.vx * 0.9 + (Math.random()*.6 - .3);
-        nb.vy = -Math.abs(b.vy) * 0.9;
-        clones.push(nb);
-      }
-      state.balls.push(...clones);
-    }else if(type==="T"){
-      state.paddle.sticky = true;
-      // se desactiva tras primer lanzamiento
-    }else if(type==="+"){
-      state.lives = Math.min(9, state.lives+1);
-      updateHUD();
-    }
-  }
-
-  // ===== Entrada =====
-  const touching = { left:false, right:false };
-  function showMobileControls(show){
-    ui.mobile.hidden = !show;
-  }
-  function maybeShowMobile(){
-    const isTouch = matchMedia("(pointer: coarse)").matches || "ontouchstart" in window;
-    showMobileControls(isTouch);
-  }
-  maybeShowMobile();
-  addEventListener("resize", maybeShowMobile);
-
-  document.addEventListener("keydown", e=>{
-    if(e.key==="ArrowLeft" || e.key==="a" || e.key==="A") state.keys.left=true;
-    if(e.key==="ArrowRight" || e.key==="d" || e.key==="D") state.keys.right=true;
-    if(e.key===" "){ state.keys.space=true; e.preventDefault(); }
-    if(e.key==="p"||e.key==="P") togglePause();
-    if(e.key==="m"||e.key==="M") toggleMute();
-    if(e.key==="?" || e.key==="/") showHelp();
+  // Eventos
+  codeEl.addEventListener('input', ()=>{
+    try{ localStorage.setItem(STORAGE_KEY, codeEl.value); }catch(err){}
+    debounceRun();
   });
-  document.addEventListener("keyup", e=>{
-    if(e.key==="ArrowLeft" || e.key==="a" || e.key==="A") state.keys.left=false;
-    if(e.key==="ArrowRight" || e.key==="d" || e.key==="D") state.keys.right=false;
-    if(e.key===" "){ state.keys.space=false; }
+  runBtn.addEventListener('click', execute);
+  autoRun.addEventListener('change', ()=>{
+    try{ localStorage.setItem(STORAGE_AUTO, autoRun.checked ? '1':'0'); }catch(err){}
+    if(autoRun.checked) debounceRun();
   });
-  canvas.addEventListener("mousemove", e=>{
-    const rect = canvas.getBoundingClientRect();
-    state.mouseX = e.clientX - rect.left;
-  });
-  canvas.addEventListener("mouseleave", ()=>{ state.mouseX=null; });
-
-  // tocuh buttons
-  ui.btnLeft.addEventListener("touchstart", e=>{ touching.left=true; e.preventDefault(); }, {passive:false});
-  ui.btnLeft.addEventListener("touchend", e=>{ touching.left=false; e.preventDefault(); }, {passive:false});
-  ui.btnRight.addEventListener("touchstart", e=>{ touching.right=true; e.preventDefault(); }, {passive:false});
-  ui.btnRight.addEventListener("touchend", e=>{ touching.right=false; e.preventDefault(); }, {passive:false});
-  ui.btnLaunch.addEventListener("touchstart", e=>{ launchBall(); e.preventDefault(); }, {passive:false});
-
-  // botones UI
-  ui.startBtn.addEventListener("click", ()=>{ unlockAudio(); startGame(); });
-  ui.resumeBtn.addEventListener("click", ()=>{ togglePause(false); });
-  ui.restartBtn.addEventListener("click", ()=>{ restartGame(); });
-  ui.pauseBtn.addEventListener("click", ()=>{ togglePause(); });
-  ui.muteBtn.addEventListener("click", ()=>{ toggleMute(); });
-  ui.helpBtn.addEventListener("click", showHelp);
-
-  canvas.addEventListener("click", ()=>{
-    if(!state.started){
-      unlockAudio(); startGame();
-    }else{
-      launchBall();
+  window.addEventListener('keydown', (e)=>{
+    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'enter'){
+      e.preventDefault(); execute();
     }
   });
 
-  function launchBall(){
-    // lanzar cualquiera que esté pegada
-    let launched=false;
-    for(const b of state.balls){
-      if(b.stuck){
-        b.stuck=false;
-        if(state.paddle.sticky){ state.paddle.sticky = false; }
-        launched=true;
-      }
-    }
-    if(launched) sfx.bounce();
-  }
-
-  function togglePause(force){
-    if(!state.started) return;
-    const p = (typeof force==="boolean") ? force : !state.paused;
-    state.paused = p;
-    ui.pause.style.display = p ? "grid" : "none";
-    ui.pauseBtn.textContent = p ? "▶️ Reanudar" : "⏸️ Pausa";
-  }
-  function toggleMute(){
-    state.muted = !state.muted;
-    ui.muteBtn.textContent = state.muted ? "🔇 Silencio" : "🔊 Sonido";
-  }
-  function showHelp(){
-    ui.menu.style.display = "grid";
-  }
-
-  // ===== Ciclo =====
-  let last=0;
-  function loop(ts){
-    if(!state.running){ requestAnimationFrame(loop); return; }
-    const dt = Math.min(32, ts-last); last = ts;
-    if(!state.paused){
-      step(dt);
-      draw();
-    }
-    requestAnimationFrame(loop);
-  }
-
-  function step(dt){
-    // actualizar
-    state.paddle.update();
-    for(const b of state.balls) b.update();
-    for(const p of state.particles) p.update();
-    for(const pu of state.powerups) pu.update();
-    // limpiar muertos
-    state.particles = state.particles.filter(p=>!p.dead);
-    state.powerups = state.powerups.filter(p=>!p.dead);
-  }
-
-  function draw(){
-    const w = canvas.clientWidth, h = canvas.clientHeight;
-    // fondo
-    const g = ctx.createLinearGradient(0,0,w,h);
-    g.addColorStop(0,"rgba(0,229,255,.06)");
-    g.addColorStop(1,"rgba(255,0,224,.06)");
-    ctx.fillStyle = "rgba(6,10,14,1)";
-    ctx.fillRect(0,0,w,h);
-    ctx.fillStyle = g;
-    ctx.fillRect(0,0,w,h);
-
-    // grid sutil
-    ctx.globalAlpha = .07;
-    ctx.strokeStyle = "#fff";
-    for(let x=0;x<w;x+=32){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke(); }
-    for(let y=0;y<h;y+=32){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
-    ctx.globalAlpha = 1;
-
-    // entidades
-    for(const b of state.bricks) b.draw();
-    for(const pu of state.powerups) pu.draw();
-    state.paddle.draw();
-    for(const b of state.balls) b.draw();
-    for(const p of state.particles) p.draw();
-  }
-
-  function startGame(){
-    ui.menu.style.display="none";
-    ui.gameOver.style.display="none";
-    state.running=true; state.started=true; state.paused=false;
-    ui.pauseBtn.textContent="⏸️ Pausa";
-    resize();
-    if(!state.paddle) resetGame();
-    requestAnimationFrame(loop);
-  }
-
-  function restartGame(){
-    resetGame();
-    state.running=true; state.started=true; state.paused=false;
-    ui.pause.style.display="none";
-    ui.gameOver.style.display="none";
-  }
-
-  function endGame(win){
-    state.running=false; state.paused=false; state.started=false;
-    ui.gameOverTitle.textContent = win ? "¡Victoria! ⭐" : "Juego terminado 💀";
-    ui.finalScore.textContent = `Puntos: ${state.score}`;
-    if(state.score>state.best){
-      state.best = state.score;
-      localStorage.setItem("nb_best", String(state.best));
-    }
-    ui.bestScore.textContent = `Récord: ${state.best}`;
-    ui.gameOver.style.display="grid";
-  }
-
-  // ===== Inicio =====
-  resetGame();
-  resize();
-  // cerrar help al hacer click fuera
-  ui.menu.addEventListener("click", (e)=>{
-    if(e.target===ui.menu) ui.menu.style.display="none";
+  // Abrir archivo
+  fileInput.addEventListener('change', async (e)=>{
+    const file = e.target.files?.[0];
+    if(!file) return;
+    const text = await file.text();
+    codeEl.value = text;
+    execute();
+    e.target.value = '';
   });
 
-})();</script>
+  // Descargar archivo
+  downloadBtn.addEventListener('click', ()=>{
+    const blob = new Blob([codeEl.value], {type:'text/html'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'mi-documento.html';
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  // Primera ejecución automática al cargar
+  execute();
+})();
+</script>
 </body>
 </html>

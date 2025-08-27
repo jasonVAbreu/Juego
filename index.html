@@ -2,297 +2,105 @@
 <html lang="es">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Ejecutor de HTML — Pega y corre</title>
-<meta name="description" content="Pega un documento HTML completo (con CSS y JS) y ejecútalo al instante." />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Render HTML a PNG (via Vercel API)</title>
 <style>
-  :root{
-    --bg:#0f1115;
-    --panel:#151923;
-    --panel-2:#0f1521;
-    --text:#e6e9ef;
-    --muted:#aab2c0;
-    --accent:#5b9cff;
-    --border:#232b3a;
-    --ok:#2ecc71;
-  }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0;
-    background:linear-gradient(180deg,var(--bg),#0b0e14);
-    color:var(--text);
-    font:14px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-  }
-  header{
-    position:sticky;top:0;z-index:10;
-    display:flex;gap:12px;align-items:center;justify-content:space-between;
-    padding:12px 16px;border-bottom:1px solid var(--border);
-    background:linear-gradient(180deg,var(--panel),rgba(21,25,35,.8));
-    backdrop-filter:saturate(1.2) blur(6px);
-  }
-  .brand{display:flex;gap:10px;align-items:center}
-  .dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 12px var(--accent)}
-  .title{font-weight:700;letter-spacing:.2px}
-  .actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  button,.toggle{
-    background:var(--panel-2);color:var(--text);
-    border:1px solid var(--border);border-radius:8px;
-    padding:8px 12px;cursor:pointer;font-weight:600;
-  }
-  button:hover{border-color:#2b364d}
-  .toggle{display:flex;gap:8px;align-items:center;user-select:none}
-  .toggle input{appearance:none;width:36px;height:20px;border-radius:999px;background:#2a3245;position:relative;outline:none;transition:.2s}
-  .toggle input:checked{background:#1f7bff}
-  .toggle input::after{
-    content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:white;transition:.2s
-  }
-  .toggle input:checked::after{transform:translateX(16px)}
-  main{
-    height:calc(100% - 58px);
-    display:grid;
-    grid-template-columns: minmax(300px, 1fr) minmax(320px, 1fr);
-    gap:0;
-  }
-  .pane{
-    height:100%;display:flex;flex-direction:column;min-height:0;
-  }
-  .pane h2{
-    margin:0;padding:10px 14px;border-bottom:1px solid var(--border);
-    background:linear-gradient(180deg,var(--panel),#121725);
-    font-size:13px;color:var(--muted);display:flex;align-items:center;justify-content:space-between;
-  }
-  .editor-wrap{position:relative;flex:1;min-height:0;background:#0b0f18}
-  textarea{
-    width:100%;height:100%;border:0;outline:none;resize:none;
-    background:transparent;color:#e7ecf5;padding:14px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-    line-height:1.45;font-size:13px;tab-size:2;caret-color:#7ab7ff;
-  }
-  .status{
-    font-size:12px;color:var(--muted);
-    display:flex;align-items:center;gap:8px;
-  }
-  .status .led{width:8px;height:8px;border-radius:50%;background:#ffbd2e;box-shadow:0 0 10px #ffbd2e}
-  .status.ok .led{background:var(--ok);box-shadow:0 0 10px var(--ok)}
-  iframe{
-    width:100%;height:100%;border:0;background:white;
-  }
-  .bar{
-    display:flex;align-items:center;justify-content:space-between;
-    gap:10px;
-  }
-  .hint{font-size:12px;color:var(--muted)}
-  .footer-note{
-    position:fixed;bottom:8px;right:12px;font-size:12px;color:var(--muted);opacity:.75
-  }
-  input[type="file"]{display:none}
-  .link-like{cursor:pointer;text-decoration:underline; color:#9bc3ff}
-  @media (max-width: 900px){
-    main{grid-template-columns:1fr;grid-auto-rows:1fr;height:auto}
-    .pane{height:60vh}
-  }
+  :root{--bg:#0b1020;--card:#fff;--ink:#0b1020;--muted:#61708a;--brand:#2f855a}
+  *{box-sizing:border-box} body{margin:0;background:linear-gradient(160deg,#0b1020,#122038);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#fff}
+  .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+  .card{background:var(--card);color:var(--ink);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.25);overflow:hidden}
+  header{padding:18px 22px;background:#10223a;color:#e6f1ff}
+  header h1{margin:0;font-size:20px;letter-spacing:.2px}
+  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:0}
+  .left{padding:18px;border-right:1px solid #eef2f6}
+  .right{padding:18px}
+  label{font-weight:700;font-size:13px;color:#334155}
+  textarea{width:100%;height:320px;border:1px solid #d7dee7;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+  input[type="text"], input[type="number"]{width:100%;border:1px solid #d7dee7;border-radius:12px;padding:10px}
+  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+  .btn{appearance:none;border:0;border-radius:999px;background:linear-gradient(135deg,#2f855a,#3dbb86);color:#fff;padding:12px 16px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(61,187,134,.35)}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .note{font-size:12px;color:#64748b;margin-top:8px}
+  .preview{display:grid;place-items:center;min-height:360px;border:1px dashed #d7dee7;border-radius:12px;background:#f7faf9}
+  .preview img{max-width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,.15)}
+  .row2{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:12px}
+  .small{font-size:12px;color:#555}
+  .footer{padding:14px 18px;background:#f4f7fb;color:#334155;font-size:12px}
 </style>
 </head>
 <body>
-  <header>
-    <div class="brand">
-      <span class="dot" aria-hidden="true"></span>
-      <div class="title">Ejecutor de HTML</div>
-    </div>
-    <div class="actions">
-      <label class="toggle" title="Ejecuta al escribir">
-        <input id="autoRun" type="checkbox" checked />
-        Auto
-      </label>
-      <button id="runBtn" title="Ejecutar (Ctrl/Cmd + Enter)">Ejecutar</button>
-      <button id="downloadBtn" title="Descargar el HTML del editor">Descargar .html</button>
-      <label class="link-like" for="fileInput" title="Cargar un archivo .html">Abrir archivo…</label>
-      <input id="fileInput" type="file" accept=".html,.htm,text/html" />
-    </div>
-  </header>
-
-  <main>
-    <section class="pane">
-      <h2 class="bar">
-        <span>Editor</span>
-        <span class="hint">Pega aquí tu documento HTML completo (con CSS y JS).</span>
-      </h2>
-      <div class="editor-wrap">
-        <textarea id="code" spellcheck="false" autofocus>
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Demo rápida — Todo en uno</title>
-  <style>
-    :root{--brand:#5b9cff}
-    body{margin:0;font:16px/1.4 system-ui,Segoe UI,Roboto,Inter,Arial,sans-serif;background:#10131a;color:#e9eef7}
-    header{position:sticky;top:0;background:#0f1420;padding:14px 16px;border-bottom:1px solid #1f2a3e}
-    h1{margin:0;font-size:18px}
-    main{max-width:900px;margin:0 auto;padding:20px}
-    .card{background:#0b0f18;border:1px solid #1b2436;border-radius:12px;padding:18px;margin:14px 0}
-    .btn{
-      background:var(--brand);color:#000;font-weight:700;border:0;border-radius:10px;padding:10px 14px;
-      cursor:pointer;box-shadow:0 6px 18px rgba(91,156,255,.25)
-    }
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    @media (max-width:700px){.grid{grid-template-columns:1fr}}
-    .tag{display:inline-block;background:#0b1628;border:1px solid #1f2a3e;color:#9bc3ff;padding:6px 10px;border-radius:999px;font-size:12px}
-  </style>
-</head>
-<body>
-  <header><h1>¡Hola! Esto es tu HTML + CSS + JS en un solo archivo</h1></header>
-  <main>
+  <div class="wrap">
     <div class="card">
-      <p>Si ves este contenido, ya está ejecutándose el documento que pegaste aquí.</p>
-      <p class="grid">
-        <span class="tag">HTML</span>
-        <span class="tag">CSS</span>
-        <span class="tag">JavaScript</span>
-        <span class="tag">Responsivo</span>
-      </p>
-      <button class="btn" id="accion">Probar JavaScript</button>
-      <p id="salida" aria-live="polite"></p>
-    </div>
-  </main>
+      <header>
+        <h1>Cliente web para <code>/api/html2png</code> (Vercel)</h1>
+      </header>
+      <div class="grid">
+        <section class="left">
+          <label for="endpoint">Endpoint</label>
+          <input id="endpoint" type="text" value="https://png-dusky.vercel.app/api/html2png" />
 
-  <script>
-    // JS de ejemplo para demostrar que funciona:
-    const btn = document.getElementById('accion');
-    const out = document.getElementById('salida');
-    btn?.addEventListener('click', ()=>{
-      const t = new Date().toLocaleTimeString();
-      out.textContent = "✅ JS funcionando. Click a las " + t;
-    });
-  </script>
-</body>
-</html>
-        </textarea>
+          <div class="row" style="margin-top:10px">
+            <div><label for="w">Ancho</label><input id="w" type="number" value="1080" /></div>
+            <div><label for="h">Alto</label><input id="h" type="number" value="1080" /></div>
+            <div><label for="s">Escala</label><input id="s" type="number" value="2" step="1" min="1" max="3" /></div>
+          </div>
+
+          <label for="html" style="display:block;margin-top:12px">HTML</label>
+          <textarea id="html"><html><body style="margin:0"><div style="width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;font:900 56px system-ui;background:#f3f7f5">Hola PNG</div></body></html></textarea>
+
+          <div class="row2">
+            <button id="render" class="btn">Renderizar a PNG</button>
+            <input id="filename" type="text" value="prueba.png" />
+          </div>
+          <p class="note">El PNG se descargará automáticamente. Si el endpoint no incluye cabeceras CORS, el navegador bloqueará la petición.</p>
+        </section>
+        <section class="right">
+          <div class="preview" id="preview">
+            <div class="small">Previsualización aparecerá aquí…</div>
+          </div>
+        </section>
       </div>
-    </section>
-
-    <section class="pane">
-      <h2 class="bar">
-        <span>Vista previa</span>
-        <span class="status" id="status"><span class="led"></span>Esperando…</span>
-      </h2>
-      <iframe id="preview" sandbox="allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation-by-user-activation" referrerpolicy="no-referrer"></iframe>
-    </section>
-  </main>
-
-  <div class="footer-note">Consejo: usa <b>Ctrl/Cmd + Enter</b> para ejecutar.</div>
+      <div class="footer">
+        Sugerencia: si ves error de CORS, agrega en tu función <code>Access-Control-Allow-Origin: *</code> y maneja preflight <code>OPTIONS</code>.
+      </div>
+    </div>
+  </div>
 
 <script>
-(function(){
-  const codeEl = document.getElementById('code');
-  const frame = document.getElementById('preview');
-  const runBtn = document.getElementById('runBtn');
-  const autoRun = document.getElementById('autoRun');
-  const status = document.getElementById('status');
-  const fileInput = document.getElementById('fileInput');
-  const downloadBtn = document.getElementById('downloadBtn');
+const $ = (id)=>document.getElementById(id);
+const endpoint=$('endpoint'), w=$('w'), h=$('h'), s=$('s'), html=$('html'), btn=$('render'), preview=$('preview'), filename=$('filename');
 
-  const STORAGE_KEY = 'html_executor_code_v1';
-  const STORAGE_AUTO = 'html_executor_auto_v1';
-
-  // Restaurar estado guardado
+async function render(){
+  btn.disabled=true; btn.textContent='Renderizando…';
+  preview.innerHTML='<div class="small">Procesando…</div>';
   try{
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if(saved) codeEl.value = saved;
-    const savedAuto = localStorage.getItem(STORAGE_AUTO);
-    if(savedAuto !== null) autoRun.checked = savedAuto === '1';
-  }catch(err){ /* modo privado o restricción */ }
-
-  // Debounce para auto-ejecución
-  let t;
-  function debounceRun(){
-    clearTimeout(t);
-    if(!autoRun.checked) return;
-    t = setTimeout(execute, 500);
-  }
-
-  function setStatusOk(msg){
-    status.classList.add('ok');
-    status.innerHTML = '<span class="led"></span>' + (msg || 'Ejecutado');
-  }
-  function setStatusWait(msg){
-    status.classList.remove('ok');
-    status.innerHTML = '<span class="led"></span>' + (msg || 'Esperando…');
-  }
-
-  function wrapWithBase(html){
-    // Asegura que los enlaces se abran en nueva pestaña y que funcione en srcdoc
-    // Si el documento ya tiene <head>, insertamos <base> dentro; si no, lo añadimos al inicio.
-    const baseTag = '<base target="_blank">';
-    if (/<head[^>]*>/i.test(html)) {
-      return html.replace(/<head([^>]*)>/i, (m, p1)=> `<head$1>${baseTag}`);
+    const res = await fetch(endpoint.value.trim(), {
+      method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Accept':'image/png' },
+      body: JSON.stringify({ html: html.value, width: Number(w.value), height: Number(h.value), scale: Number(s.value) })
+    });
+    if(!res.ok){
+      const txt = await res.text();
+      throw new Error('HTTP '+res.status+' '+res.statusText+' → '+txt);
     }
-    // Si tiene <html> pero no <head>, creamos uno
-    if (/<html[^>]*>/i.test(html)) {
-      return html.replace(/<html([^>]*)>/i, (m, p1)=> `<html$1><head>${baseTag}</head>`);
-    }
-    // Documento simple: añadimos al inicio
-    return `<!doctype html><head>${baseTag}</head>${html}`;
-  }
-
-  function execute(){
-    const html = codeEl.value;
-    // Guardar
-    try{
-      localStorage.setItem(STORAGE_KEY, html);
-    }catch(err){/* ignorar */ }
-
-    setStatusWait('Ejecutando…');
-    // Actualizar la vista previa
-    frame.srcdoc = wrapWithBase(html);
-    // Esperar a que cargue
-    const onLoad = () => {
-      setStatusOk('Ejecutado');
-      frame.removeEventListener('load', onLoad);
-    };
-    frame.addEventListener('load', onLoad);
-  }
-
-  // Eventos
-  codeEl.addEventListener('input', ()=>{
-    try{ localStorage.setItem(STORAGE_KEY, codeEl.value); }catch(err){}
-    debounceRun();
-  });
-  runBtn.addEventListener('click', execute);
-  autoRun.addEventListener('change', ()=>{
-    try{ localStorage.setItem(STORAGE_AUTO, autoRun.checked ? '1':'0'); }catch(err){}
-    if(autoRun.checked) debounceRun();
-  });
-  window.addEventListener('keydown', (e)=>{
-    if((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'enter'){
-      e.preventDefault(); execute();
-    }
-  });
-
-  // Abrir archivo
-  fileInput.addEventListener('change', async (e)=>{
-    const file = e.target.files?.[0];
-    if(!file) return;
-    const text = await file.text();
-    codeEl.value = text;
-    execute();
-    e.target.value = '';
-  });
-
-  // Descargar archivo
-  downloadBtn.addEventListener('click', ()=>{
-    const blob = new Blob([codeEl.value], {type:'text/html'});
+    const blob = await res.blob();
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'mi-documento.html';
+    // preview
+    preview.innerHTML='';
+    const img = new Image(); img.src=url; img.alt='preview';
+    preview.appendChild(img);
+    // descarga
+    const a=document.createElement('a'); a.href=url; a.download=filename.value || 'render.png';
     document.body.appendChild(a); a.click(); a.remove();
-    URL.revokeObjectURL(url);
-  });
-
-  // Primera ejecución automática al cargar
-  execute();
-})();
+    setTimeout(()=>URL.revokeObjectURL(url), 20000);
+  }catch(err){
+    preview.innerHTML='<div class="small" style="color:#b91c1c">'+(err.message||err)+'</div>';
+    console.error(err);
+  }finally{
+    btn.disabled=false; btn.textContent='Renderizar a PNG';
+  }
+}
+btn.addEventListener('click', render);
 </script>
 </body>
 </html>

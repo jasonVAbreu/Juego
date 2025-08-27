@@ -1,106 +1,265 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Render HTML a PNG (via Vercel API)</title>
-<style>
-  :root{--bg:#0b1020;--card:#fff;--ink:#0b1020;--muted:#61708a;--brand:#2f855a}
-  *{box-sizing:border-box} body{margin:0;background:linear-gradient(160deg,#0b1020,#122038);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;color:#fff}
-  .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
-  .card{background:var(--card);color:var(--ink);border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.25);overflow:hidden}
-  header{padding:18px 22px;background:#10223a;color:#e6f1ff}
-  header h1{margin:0;font-size:20px;letter-spacing:.2px}
-  .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:0}
-  .left{padding:18px;border-right:1px solid #eef2f6}
-  .right{padding:18px}
-  label{font-weight:700;font-size:13px;color:#334155}
-  textarea{width:100%;height:320px;border:1px solid #d7dee7;border-radius:12px;padding:12px;font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
-  input[type="text"], input[type="number"]{width:100%;border:1px solid #d7dee7;border-radius:12px;padding:10px}
-  .row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
-  .btn{appearance:none;border:0;border-radius:999px;background:linear-gradient(135deg,#2f855a,#3dbb86);color:#fff;padding:12px 16px;font-weight:800;cursor:pointer;box-shadow:0 10px 22px rgba(61,187,134,.35)}
-  .btn[disabled]{opacity:.6;cursor:not-allowed}
-  .note{font-size:12px;color:#64748b;margin-top:8px}
-  .preview{display:grid;place-items:center;min-height:360px;border:1px dashed #d7dee7;border-radius:12px;background:#f7faf9}
-  .preview img{max-width:100%;border-radius:12px;box-shadow:0 8px 24px rgba(2,6,23,.15)}
-  .row2{display:grid;grid-template-columns:2fr 1fr;gap:10px;margin-top:12px}
-  .small{font-size:12px;color:#555}
-  .footer{padding:14px 18px;background:#f4f7fb;color:#334155;font-size:12px}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>HTML → PNG (Power Automate ready)</title>
+  <style>
+    :root{
+      --bg:#0f1115; --card:#171923; --muted:#a0aec0; --text:#e2e8f0; --accent:#60a5fa; --good:#22c55e; --bad:#ef4444;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0c0f14, #10131a);color:var(--text);font:16px/1.45 system-ui,Segoe UI,Roboto,Arial}
+    .wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+    .title{font-weight:800;font-size:22px;margin:0 0 18px}
+    .grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+    .card{background:var(--card);border:1px solid rgba(255,255,255,.06);border-radius:var(--radius);padding:16px;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"],input[type="number"],select,textarea{
+      width:100%; background:#0b0e14;color:var(--text);border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;padding:10px 12px;outline:none
+    }
+    textarea{min-height:260px;resize:vertical}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+    .hint{font-size:12px;color:var(--muted)}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    button{
+      appearance:none;border:0;border-radius:12px;padding:10px 14px;font-weight:700;cursor:pointer;
+      background:var(--accent);color:#081018;transition:transform .05s ease-in,opacity .15s;
+    }
+    button.secondary{background:#2d3748;color:#e2e8f0}
+    button:active{transform:translateY(1px)}
+    .preview{display:flex;align-items:center;justify-content:center;background:#0b0e14;border-radius:12px;min-height:260px;border:1px dashed rgba(255,255,255,.09);overflow:auto}
+    .preview img{max-width:100%;height:auto;display:block}
+    .ok{color:var(--good)}
+    .err{color:var(--bad);white-space:pre-wrap}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#0b0e14;border:1px solid rgba(255,255,255,.08);padding:6px 10px;border-radius:999px;font-size:12px;color:var(--muted)}
+    .footer{margin-top:18px;font-size:12px;color:var(--muted)}
+    .spin{width:16px;height:16px;border:3px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;display:inline-block;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <header>
-        <h1>Cliente web para <code>/api/html2png</code> (Vercel)</h1>
-      </header>
-      <div class="grid">
-        <section class="left">
-          <label for="endpoint">Endpoint</label>
-          <input id="endpoint" type="text" value="https://png-dusky.vercel.app/api/html2png" />
-
-          <div class="row" style="margin-top:10px">
-            <div><label for="w">Ancho</label><input id="w" type="number" value="1080" /></div>
-            <div><label for="h">Alto</label><input id="h" type="number" value="1080" /></div>
-            <div><label for="s">Escala</label><input id="s" type="number" value="2" step="1" min="1" max="3" /></div>
+    <h1 class="title">HTML → PNG</h1>
+    <div class="grid">
+      <!-- Panel Izquierdo -->
+      <div class="card">
+        <div class="row">
+          <div>
+            <label>Endpoint (POST)</label>
+            <input id="endpoint" type="text" value="https://glorious-invention-jg79qww55qv2rjr-8080.app.github.dev/html2png" />
+            <div class="hint">Tu endpoint /html2png (puedes cambiarlo luego).</div>
           </div>
-
-          <label for="html" style="display:block;margin-top:12px">HTML</label>
-          <textarea id="html"><html><body style="margin:0"><div style="width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;font:900 56px system-ui;background:#f3f7f5">Hola PNG</div></body></html></textarea>
-
-          <div class="row2">
-            <button id="render" class="btn">Renderizar a PNG</button>
-            <input id="filename" type="text" value="prueba.png" />
+          <div>
+            <label>x-api-key</label>
+            <input id="apikey" type="text" placeholder="TU_SECRETO" />
+            <div class="hint">Debe coincidir con la API_KEY del servidor.</div>
           </div>
-          <p class="note">El PNG se descargará automáticamente. Si el endpoint no incluye cabeceras CORS, el navegador bloqueará la petición.</p>
-        </section>
-        <section class="right">
-          <div class="preview" id="preview">
-            <div class="small">Previsualización aparecerá aquí…</div>
+        </div>
+
+        <label style="margin-top:12px">Pega tu HTML</label>
+        <textarea id="htmlInput" placeholder="&lt;!doctype html&gt;
+&lt;html&gt;
+  &lt;head&gt;&lt;meta charset='utf-8'&gt;
+    &lt;style&gt;body{font-family:Arial;margin:24px}&lt;/style&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Factura #123&lt;/h1&gt;
+    &lt;p&gt;Total: US$150.00&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;"></textarea>
+
+        <div class="row3" style="margin-top:10px">
+          <div>
+            <label>Escala (nitidez)</label>
+            <input id="scale" type="number" value="2" min="1" max="4" step="0.5" />
           </div>
-        </section>
+          <div>
+            <label>Viewport ancho (px)</label>
+            <input id="vw" type="number" value="1280" min="200" />
+          </div>
+          <div>
+            <label>Viewport alto (px)</label>
+            <input id="vh" type="number" value="720" min="200" />
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:10px">
+          <div>
+            <label>fullPage</label>
+            <select id="fullPage">
+              <option value="true" selected>true (capturar página completa)</option>
+              <option value="false">false (solo el viewport)</option>
+            </select>
+          </div>
+          <div>
+            <label>waitUntil</label>
+            <select id="waitUntil">
+              <option value="networkidle" selected>networkidle</option>
+              <option value="load">load</option>
+              <option value="domcontentloaded">domcontentloaded</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button id="btnConvert">Convertir a PNG</button>
+          <button id="btnSample" class="secondary">Cargar demo</button>
+          <span id="status" class="badge">Listo</span>
+        </div>
+        <div id="msg" class="hint" style="margin-top:8px"></div>
       </div>
-      <div class="footer">
-        Sugerencia: si ves error de CORS, agrega en tu función <code>Access-Control-Allow-Origin: *</code> y maneja preflight <code>OPTIONS</code>.
+
+      <!-- Panel Derecho -->
+      <div class="card">
+        <label>Vista previa</label>
+        <div id="preview" class="preview"><span class="hint">Aquí verás el PNG generado…</span></div>
+        <div class="actions">
+          <button id="btnDownload" class="secondary" disabled>Descargar PNG</button>
+          <button id="btnCopyBase64" class="secondary" disabled>Copiar Base64</button>
+        </div>
+        <div class="footer">
+          Consejo: si tu HTML usa fuentes externas, usa URLs absolutas y este modo: <code>waitUntil = networkidle</code>.
+        </div>
       </div>
     </div>
   </div>
 
-<script>
-const $ = (id)=>document.getElementById(id);
-const endpoint=$('endpoint'), w=$('w'), h=$('h'), s=$('s'), html=$('html'), btn=$('render'), preview=$('preview'), filename=$('filename');
+  <script>
+    const $ = (id)=>document.getElementById(id);
+    const endpointEl = $("endpoint");
+    const apikeyEl   = $("apikey");
+    const htmlEl     = $("htmlInput");
+    const scaleEl    = $("scale");
+    const vwEl       = $("vw");
+    const vhEl       = $("vh");
+    const fullPageEl = $("fullPage");
+    const waitEl     = $("waitUntil");
+    const statusEl   = $("status");
+    const msgEl      = $("msg");
+    const previewEl  = $("preview");
+    const btnConvert = $("btnConvert");
+    const btnSample  = $("btnSample");
+    const btnDownload= $("btnDownload");
+    const btnCopyB64 = $("btnCopyBase64");
 
-async function render(){
-  btn.disabled=true; btn.textContent='Renderizando…';
-  preview.innerHTML='<div class="small">Procesando…</div>';
-  try{
-    const res = await fetch(endpoint.value.trim(), {
-      method:'POST',
-      headers:{ 'Content-Type':'application/json', 'Accept':'image/png' },
-      body: JSON.stringify({ html: html.value, width: Number(w.value), height: Number(h.value), scale: Number(s.value) })
-    });
-    if(!res.ok){
-      const txt = await res.text();
-      throw new Error('HTTP '+res.status+' '+res.statusText+' → '+txt);
+    let currentBlob = null;
+    let currentBase64 = null;
+
+    function setStatus(text, spin=false){
+      statusEl.innerHTML = spin ? '<span class="spin"></span> '+text : text;
     }
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    // preview
-    preview.innerHTML='';
-    const img = new Image(); img.src=url; img.alt='preview';
-    preview.appendChild(img);
-    // descarga
-    const a=document.createElement('a'); a.href=url; a.download=filename.value || 'render.png';
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(()=>URL.revokeObjectURL(url), 20000);
-  }catch(err){
-    preview.innerHTML='<div class="small" style="color:#b91c1c">'+(err.message||err)+'</div>';
-    console.error(err);
-  }finally{
-    btn.disabled=false; btn.textContent='Renderizar a PNG';
-  }
-}
-btn.addEventListener('click', render);
-</script>
+    function setMsg(text, ok=false){
+      msgEl.className = ok ? "ok" : "err";
+      msgEl.textContent = text || "";
+    }
+    function setPreviewFromBase64(b64){
+      previewEl.innerHTML = "";
+      const img = new Image();
+      img.src = "data:image/png;base64," + b64;
+      img.onload = ()=>{ previewEl.innerHTML = ""; previewEl.appendChild(img); };
+      img.onerror = ()=>{ previewEl.innerHTML = "<span class='err'>No se pudo mostrar la imagen.</span>"; };
+    }
+    function downloadBlob(blob, name){
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name || ("captura-"+new Date().toISOString()+".png");
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 500);
+    }
+
+    btnSample.addEventListener("click", ()=>{
+      htmlEl.value = `<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  body{font-family:Arial;margin:40px;background:#0b1320;color:#e2e8f0}
+  .box{border:2px dashed #60a5fa;border-radius:16px;padding:24px}
+  h1{margin:0 0 8px}
+</style></head>
+<body>
+  <div class="box">
+    <h1>Demo HTML → PNG</h1>
+    <p>Generado desde tu endpoint con <strong>Playwright</strong>.</p>
+  </div>
+</body></html>`;
+    });
+
+    btnConvert.addEventListener("click", async ()=>{
+      setMsg("");
+      setStatus("Convirtiendo…", true);
+      btnConvert.disabled = true; btnDownload.disabled = true; btnCopyB64.disabled = true;
+
+      const endpoint = endpointEl.value.trim();
+      const apikey   = apikeyEl.value.trim();
+      const html     = htmlEl.value;
+      const scale    = Number(scaleEl.value || 2);
+      const width    = Number(vwEl.value || 1280);
+      const height   = Number(vhEl.value || 720);
+      const fullPage = (fullPageEl.value === "true");
+      const waitUntil= waitEl.value;
+
+      if(!endpoint){ setStatus("Listo"); setMsg("Coloca la URL del endpoint.", false); btnConvert.disabled=false; return; }
+      if(!html){ setStatus("Listo"); setMsg("Pega el HTML que quieres convertir.", false); btnConvert.disabled=false; return; }
+
+      try{
+        const res = await fetch(endpoint, {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json",
+            ...(apikey ? {"x-api-key": apikey} : {})
+          },
+          body: JSON.stringify({
+            html, fullPage, scale, waitUntil,
+            viewport: { width, height },
+            "return": "base64"
+          })
+        });
+
+        if(!res.ok){
+          const t = await res.text().catch(()=> "");
+          throw new Error(`HTTP ${res.status} ${res.statusText}\n${t}`);
+        }
+
+        const data = await res.json();
+        const b64 = (data && data.image_base64)||"";
+        if(!b64) throw new Error("Respuesta sin image_base64.");
+
+        currentBase64 = b64;
+        currentBlob = await (await fetch("data:image/png;base64,"+b64)).blob();
+
+        setPreviewFromBase64(b64);
+        btnDownload.disabled = false;
+        btnCopyB64.disabled = false;
+        setStatus("Listo");
+        setMsg("¡Imagen generada correctamente!", true);
+      }catch(err){
+        console.error(err);
+        setStatus("Listo");
+        setMsg(String(err?.message || err), false);
+        previewEl.innerHTML = "<span class='err'>Error al generar imagen.</span>";
+        currentBlob = null; currentBase64 = null;
+      }finally{
+        btnConvert.disabled = false;
+      }
+    });
+
+    btnDownload.addEventListener("click", ()=>{
+      if(currentBlob) downloadBlob(currentBlob, "captura-"+new Date().toISOString().replace(/[:.]/g,"-")+".png");
+    });
+
+    btnCopyB64.addEventListener("click", async ()=>{
+      if(!currentBase64) return;
+      try{
+        await navigator.clipboard.writeText(currentBase64);
+        setMsg("Base64 copiado al portapapeles.", true);
+      }catch{
+        setMsg("No se pudo copiar el Base64.", false);
+      }
+    });
+  </script>
 </body>
 </html>

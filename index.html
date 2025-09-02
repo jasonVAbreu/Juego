@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Método en 8 Etapas | Servicios Jey</title>
+  <meta name="description" content="Nuestro proceso profesional en 8 etapas para analizar, diseñar e implementar automatizaciones que impulsen tu negocio." />
+  <meta property="og:title" content="Método en 8 Etapas | Servicios Jey" />
+  <meta property="og:description" content="Así trabajamos para automatizar tu negocio con resultados medibles y rápidos." />
+  <meta name="theme-color" content="#111418" />
+
+  <style>
+    :root{
+      --bg-0:#0e1116;
+      --bg-1:#12161d;
+      --bg-2:#171c24;
+      --card:#151a22;
+      --line:#2a3140;
+      --muted:#bfbfbf; /* solicitado por el cliente */
+      --text:#f1f3f5;
+      --accent:#ffffff; /* paleta blanco/negro/gris */
+      --accent-2:#8b8b8b;
+      --success:#25D366; /* WhatsApp */
+    }
+
+    /* Reset + base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text); background: radial-gradient(1200px 800px at 80% -10%, #1e232c22, transparent 50%),
+                          radial-gradient(1000px 700px at -20% 10%, #2a31403a, transparent 60%),
+                          linear-gradient(180deg, var(--bg-1), var(--bg-0));
+      line-height:1.5; letter-spacing:.2px;
+    }
+    a{color:inherit; text-decoration:none}
+    img{max-width:100%; display:block}
+
+    /* Layout */
+    .container{width:min(1100px, 92vw); margin-inline:auto}
+    header{
+      position:sticky; top:0; z-index:40; backdrop-filter:saturate(180%) blur(10px);
+      background:linear-gradient(180deg, rgba(14,17,22,.75), rgba(14,17,22,.35));
+      border-bottom:1px solid #ffffff0f;
+    }
+    .nav{
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding:12px 0;
+    }
+    .brand{display:flex; align-items:center; gap:10px; font-weight:700; letter-spacing:.5px}
+    .brand .dot{width:10px; height:10px; border-radius:999px; background:var(--accent); box-shadow:0 0 30px #fff8}
+    .nav a{opacity:.9; padding:8px 10px; border-radius:8px}
+    .nav a:hover{background:#ffffff12; opacity:1}
+    .cta{
+      display:inline-flex; align-items:center; gap:8px; padding:10px 16px; border-radius:12px;
+      border:1px solid #fff; color:#000; background:#fff; font-weight:700;
+      transition:.25s transform ease;
+    }
+    .cta:hover{transform:translateY(-1px)}
+
+    /* Hero */
+    .hero{position:relative; padding:72px 0 40px; overflow:hidden}
+    .hero-grid{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:32px; align-items:center;
+    }
+    .badge{
+      display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px;
+      border:1px solid var(--line); background:#ffffff08; color:var(--muted); font-size:13px;
+    }
+    .h1{font-size: clamp(28px, 6vw, 48px); line-height:1.15; margin:10px 0 12px; font-weight:800}
+    .sub{color:var(--muted); font-size: clamp(14px, 2.5vw, 18px)}
+    .hero-card{
+      background:linear-gradient(180deg, #141922, #10151d);
+      border:1px solid #ffffff14; border-radius:18px; padding:18px; box-shadow:0 10px 40px #0006;
+    }
+    .kpis{display:grid; grid-template-columns: repeat(3,1fr); gap:10px; margin-top:12px}
+    .kpis .k{
+      padding:14px; border:1px dashed var(--line); border-radius:14px; text-align:center; color:var(--muted);
+    }
+    .k strong{display:block; color:var(--text); font-size:18px}
+
+    /* Stepper */
+    .stepper{
+      display:grid; grid-template-columns: repeat(8,1fr); gap:6px; margin:24px 0 0;
+    }
+    .stepper .s{
+      height:6px; border-radius:999px; background:#ffffff1a; position:relative; overflow:hidden;
+    }
+    .s.active::after{
+      content:""; position:absolute; inset:0; background:linear-gradient(90deg, #fff, #aaa);
+      animation:fill 2s linear both;
+    }
+    @keyframes fill{from{transform:translateX(-100%)} to{transform:translateX(0)}}
+
+    /* Stages */
+    section{padding:60px 0}
+    .section-title{font-size: clamp(22px, 4vw, 32px); margin:0 0 10px}
+    .section-sub{color:var(--muted); margin:0 0 20px}
+    .grid{
+      display:grid; grid-template-columns: repeat(12, 1fr); gap:18px;
+    }
+    .card{
+      grid-column: span 12;
+      background:linear-gradient(180deg, #141922, #11161f);
+      border:1px solid #ffffff12; border-radius:16px; padding:18px; position:relative; overflow:hidden;
+    }
+    @media (min-width: 880px){
+      .card{grid-column: span 6}
+    }
+    .card .head{display:flex; align-items:center; gap:12px}
+    .num{
+      width:36px; height:36px; border-radius:10px; display:grid; place-content:center;
+      border:1px solid var(--line); background:#fff1; font-weight:800;
+    }
+    .title{font-weight:800; font-size:18px}
+    .desc{color:var(--muted); margin:6px 0 10px}
+    .tools{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .chip{font-size:12px; color:#cfd3d8; border:1px solid var(--line); padding:6px 10px; border-radius:999px; background:#ffffff08}
+
+    /* Toggle details */
+    .details{margin-top:10px; border-top:1px dashed var(--line); padding-top:10px; display:none}
+    .card.open .details{display:block; animation:fade .3s ease}
+    @keyframes fade{from{opacity:0; transform:translateY(-4px)} to{opacity:1; transform:translateY(0)}}
+    .toggle{
+      cursor:pointer; font-size:14px; color:#000; background:#fff; border:1px solid #fff;
+      padding:8px 12px; border-radius:10px; font-weight:700; display:inline-flex; align-items:center; gap:8px;
+    }
+    .toggle svg{width:16px; height:16px}
+
+    /* Benefits */
+    .benefits{display:grid; grid-template-columns: repeat(3, 1fr); gap:12px}
+    .benefit{border:1px solid var(--line); background:#ffffff06; padding:16px; border-radius:12px}
+    @media (max-width: 900px){.benefits{grid-template-columns: 1fr}}
+
+    /* FAQ */
+    .faq .q{border:1px solid var(--line); padding:14px 16px; border-radius:12px; background:#ffffff08; margin-bottom:10px}
+    .faq .q h4{margin:0}
+    .faq .q p{color:var(--muted); margin:.4rem 0 0}
+    .faq .q[open]{background:#ffffff12}
+
+    /* Contact */
+    .contact{
+      display:grid; grid-template-columns: 1.1fr .9fr; gap:18px; align-items:center;
+      background:linear-gradient(180deg, #141922, #0f141c); border:1px solid #ffffff14; border-radius:18px; padding:22px;
+    }
+    @media (max-width: 900px){.contact{grid-template-columns:1fr}}
+    .form input, .form textarea{
+      width:100%; padding:12px 14px; margin:8px 0; border-radius:12px; border:1px solid var(--line);
+      background:#0e1219; color:var(--text); outline:none;
+    }
+    .form button{all:unset}
+    .btn{
+      display:inline-flex; align-items:center; gap:10px; padding:12px 18px; border-radius:12px;
+      font-weight:800; border:1px solid #fff; background:#fff; color:#000; cursor:pointer;
+    }
+    .btn.outline{background:transparent; color:#fff; border-color:#fff}
+    .btn.whatsapp{border-color:var(--success); color:#0c2215; background:var(--success)}
+
+    /* Reveal on scroll */
+    .reveal{opacity:0; transform:translateY(12px); transition:.6s ease}
+    .reveal.visible{opacity:1; transform:none}
+
+    footer{color:var(--muted); border-top:1px solid #ffffff12; padding:30px 0 50px}
+    .footer-grid{display:grid; grid-template-columns: 1fr 1fr; gap:10px; align-items:center}
+    @media (max-width: 700px){.footer-grid{grid-template-columns:1fr}}
+    .tiny{font-size:12px; opacity:.8}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <span class="dot"></span>
+        <span>Servicios Jey</span>
+      </div>
+      <nav style="display:flex; gap:6px;">
+        <a href="#proceso">Proceso</a>
+        <a href="#beneficios">Beneficios</a>
+        <a href="#faq">Preguntas</a>
+        <a href="#contacto">Contacto</a>
+        <a class="cta" href="https://wa.me/18094862675" target="_blank" rel="noopener">WhatsApp</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <span class="badge">Automatizamos procesos • Sin humo</span>
+          <h1 class="h1">Un método claro para <u>automatizar</u> tu negocio</h1>
+          <p class="sub">Te mostramos, paso a paso, cómo analizamos, diseñamos e implementamos soluciones que eliminan fricción, ahorran tiempo y dan visibilidad real del desempeño.</p>
+          <div class="stepper" aria-label="Progreso de 8 etapas">
+            <div class="s" id="bar-1"></div>
+            <div class="s" id="bar-2"></div>
+            <div class="s" id="bar-3"></div>
+            <div class="s" id="bar-4"></div>
+            <div class="s" id="bar-5"></div>
+            <div class="s" id="bar-6"></div>
+            <div class="s" id="bar-7"></div>
+            <div class="s" id="bar-8"></div>
+          </div>
+          <div style="display:flex; gap:10px; margin-top:16px;">
+            <a class="btn" href="#proceso">Ver el proceso</a>
+            <a class="btn outline" href="#contacto">Pedir diagnóstico</a>
+          </div>
+        </div>
+        <div class="hero-card">
+          <div style="display:flex; gap:10px; align-items:stretch;">
+            <div class="k" style="flex:1">
+              <strong>Diagnóstico</strong>
+              45–90 min de descubrimiento para entender dolores, metas y contexto.
+            </div>
+            <div class="k" style="flex:1">
+              <strong>Roadmap</strong>
+              Entregamos un plan por hitos con tiempos, riesgos y dependencias.
+            </div>
+            <div class="k" style="flex:1">
+              <strong>Resultados</strong>
+              Implementamos rápido (MVP), medimos KPIs y escalamos lo que funciona.
+            </div>
+          </div>
+          <div class="kpis">
+            <div class="k"><strong>8</strong>etapas simples</div>
+            <div class="k"><strong>1</strong>equipo guía</div>
+            <div class="k"><strong>∞</strong>mejoras continuas</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="proceso">
+      <div class="container">
+        <h2 class="section-title">Nuestro proceso en 8 etapas</h2>
+        <p class="section-sub">Tomamos lo mejor de ingeniería de métodos, mejora continua y diseño de servicios para construir soluciones a tu medida.</p>
+
+        <div class="grid">
+          <!-- 1 -->
+          <article class="card reveal stage" data-step="1" id="etapa-1">
+            <div class="head">
+              <div class="num">1</div>
+              <div class="title">Seleccionar el proceso / problema</div>
+            </div>
+            <p class="desc">Priorizamos dónde está el mayor dolor o impacto (tiempo, costo, calidad, experiencia del cliente).</p>
+            <div class="tools">
+              <span class="chip">Kick-off</span><span class="chip">Alcance preliminar</span><span class="chip">Mapa de stakeholders</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Acta de inicio y criterios de priorización</li>
+                <li>Mapa de proceso actual a alto nivel</li>
+                <li>Riesgos iniciales y supuestos</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 2 -->
+          <article class="card reveal stage" data-step="2" id="etapa-2">
+            <div class="head">
+              <div class="num">2</div>
+              <div class="title">Definir objetivos y KPIs</div>
+            </div>
+            <p class="desc">Alineamos metas SMART y definimos métricas de éxito (baseline vs. meta).</p>
+            <div class="tools">
+              <span class="chip">Objetivos SMART</span><span class="chip">KPIs</span><span class="chip">Baseline</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Matriz objetivo → KPI → responsable</li>
+                <li>Línea base de desempeño</li>
+                <li>Tablero de métricas propuesto</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 3 -->
+          <article class="card reveal stage" data-step="3" id="etapa-3">
+            <div class="head">
+              <div class="num">3</div>
+              <div class="title">Recopilación de datos</div>
+            </div>
+            <p class="desc">Observación, entrevistas y extracción de datos de tus sistemas para entender el proceso real.</p>
+            <div class="tools">
+              <span class="chip">SIPOC</span><span class="chip">VSM (as-is)</span><span class="chip">Toma de tiempos</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Inventario de fuentes de datos</li>
+                <li>Mapa de flujo de valor (actual)</li>
+                <li>Checklist de cumplimiento y calidad</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 4 -->
+          <article class="card reveal stage" data-step="4" id="etapa-4">
+            <div class="head">
+              <div class="num">4</div>
+              <div class="title">Análisis del proceso</div>
+            </div>
+            <p class="desc">Detectamos desperdicios, cuellos de botella y causas raíz para intervenir con precisión.</p>
+            <div class="tools">
+              <span class="chip">5 Porqués</span><span class="chip">Ishikawa</span><span class="chip">TIMWOOD</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Diagrama causa–efecto</li>
+                <li>Análisis tiempo con y sin valor</li>
+                <li>Lista de quick wins</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 5 -->
+          <article class="card reveal stage" data-step="5" id="etapa-5">
+            <div class="head">
+              <div class="num">5</div>
+              <div class="title">Desarrollar alternativas</div>
+            </div>
+            <p class="desc">Ideamos opciones técnicas y operativas con diferentes niveles de inversión y efecto.</p>
+            <div class="tools">
+              <span class="chip">Ideación guiada</span><span class="chip">Benchmark</span><span class="chip">Matriz Impacto/Esfuerzo</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Backlog priorizado de iniciativas</li>
+                <li>Prototipos de flujo (low-fi)</li>
+                <li>Requerimientos funcionales</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 6 -->
+          <article class="card reveal stage" data-step="6" id="etapa-6">
+            <div class="head">
+              <div class="num">6</div>
+              <div class="title">Evaluar y seleccionar</div>
+            </div>
+            <p class="desc">Evaluamos costo/beneficio, riesgos y valor; seleccionamos una solución MVP para arrancar.</p>
+            <div class="tools">
+              <span class="chip">Pugh/AHP</span><span class="chip">Business case</span><span class="chip">Gestión de riesgos</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Comparativa técnica y económica</li>
+                <li>Plan de proyecto y roadmap</li>
+                <li>KPIs objetivo por hito</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 7 -->
+          <article class="card reveal stage" data-step="7" id="etapa-7">
+            <div class="head">
+              <div class="num">7</div>
+              <div class="title">Implementación</div>
+            </div>
+            <p class="desc">Construimos el MVP, estandarizamos tareas, entrenamos al equipo e integramos tus sistemas.</p>
+            <div class="tools">
+              <span class="chip">Automatizaciones</span><span class="chip">SOP</span><span class="chip">Capacitación</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Flujos en producción (ej. WhatsApp/Instagram/Email/Apps)</li>
+                <li>Manual de operación y checklist</li>
+                <li>Plan de despliegue y adopción</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+
+          <!-- 8 -->
+          <article class="card reveal stage" data-step="8" id="etapa-8">
+            <div class="head">
+              <div class="num">8</div>
+              <div class="title">Seguimiento y control</div>
+            </div>
+            <p class="desc">Monitoreamos KPIs, realizamos ajustes y escalamos lo que demuestra valor.</p>
+            <div class="tools">
+              <span class="chip">Dashboard</span><span class="chip">SLA/OKR</span><span class="chip">PDCA</span>
+            </div>
+            <div class="details">
+              <strong>Entregables:</strong>
+              <ul>
+                <li>Tablero de control y alertas</li>
+                <li>Plan de mejora continua</li>
+                <li>Documento de lecciones aprendidas</li>
+              </ul>
+            </div>
+            <button class="toggle" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              Ver entregables
+            </button>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="beneficios">
+      <div class="container">
+        <h2 class="section-title">Beneficios para tu negocio</h2>
+        <p class="section-sub">Resultados típicos de nuestros proyectos de automatización bien ejecutados.</p>
+        <div class="benefits reveal">
+          <div class="benefit">
+            <h3>Más velocidad</h3>
+            <p>Menos retrabajo, menos esperas y menos tareas manuales repetitivas.</p>
+          </div>
+          <div class="benefit">
+            <h3>Más control</h3>
+            <p>KPIs visibles en tiempo real y trazabilidad de punta a punta.</p>
+          </div>
+          <div class="benefit">
+            <h3>Mejor experiencia</h3>
+            <p>Respuestas coherentes, tiempos de atención menores y menos errores.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <div class="container">
+        <h2 class="section-title">Preguntas frecuentes</h2>
+        <details class="q reveal">
+          <summary><h4>¿Cuánto tarda el proceso?</h4></summary>
+          <p>Depende del alcance. Un MVP puede quedar operativo en semanas; proyectos más amplios pueden dividirse por fases.</p>
+        </details>
+        <details class="q reveal">
+          <summary><h4>¿Necesito cambiar mis sistemas?</h4></summary>
+          <p>No necesariamente. Integramos tus herramientas actuales cuando aporta valor y reemplazamos solo si es imprescindible.</p>
+        </details>
+        <details class="q reveal">
+          <summary><h4>¿Cómo miden el éxito?</h4></summary>
+          <p>Definimos KPIs al inicio (etapa 2) y damos seguimiento continuo (etapa 8) con tableros y alertas.</p>
+        </details>
+      </div>
+    </section>
+
+    <section id="contacto" class="container">
+      <div class="contact reveal">
+        <div>
+          <h2 style="margin:0 0 6px">¿Listo para empezar?</h2>
+          <p class="section-sub" style="margin:0 0 12px">Agenda un diagnóstico sin costo: entendemos tu contexto y te proponemos un roadmap claro.</p>
+          <div style="display:flex; gap:10px; flex-wrap:wrap">
+            <a class="btn whatsapp" href="https://wa.me/18094862675" target="_blank" rel="noopener">Escríbenos por WhatsApp</a>
+            <a class="btn outline" href="mailto:serviciosjey@gmail.com">o por Email</a>
+          </div>
+        </div>
+        <form class="form" onsubmit="event.preventDefault(); openWhatsApp();">
+          <input id="f_nombre" placeholder="Tu nombre" required />
+          <input id="f_empresa" placeholder="Empresa" />
+          <input id="f_contacto" placeholder="Email o WhatsApp" required />
+          <textarea id="f_nota" rows="4" placeholder="Cuéntanos brevemente tu proceso o problema prioritario"></textarea>
+          <button class="btn" type="submit">Solicitar diagnóstico</button>
+          <p class="tiny">Al enviar, abriremos WhatsApp con un mensaje prellenado para que sea rápido.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-grid">
+      <div>© <span id="y"></span> Servicios Jey — Métodos y Automatización</div>
+      <div style="text-align:right">
+        <span class="tiny">Hecho con un enfoque profesional, moderno y minimalista (blanco/negro/gris).</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{
+      a.addEventListener('click', e=>{
+        const href = a.getAttribute('href');
+        if(href.length>1){
+          e.preventDefault();
+          document.querySelector(href)?.scrollIntoView({behavior:'smooth', block:'start'});
+        }
+      });
+    });
+
+    // Toggle details on cards
+    document.querySelectorAll('.card .toggle').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const card = btn.closest('.card');
+        const open = card.classList.toggle('open');
+        btn.setAttribute('aria-expanded', open ? 'true':'false');
+        btn.innerHTML = (open
+          ? '<svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Ocultar entregables'
+          : '<svg viewBox="0 0 24 24" fill="none"><path d="M6 12h12M12 6v12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg> Ver entregables');
+      });
+    });
+
+    // Reveal on scroll
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('visible');
+          io.unobserve(e.target);
+        }
+      });
+    }, {threshold: .15});
+    document.querySelectorAll('.reveal, .stage').forEach(el=>io.observe(el));
+
+    // Stepper progress highlight
+    const stages = [...document.querySelectorAll('.stage')];
+    const bars = stages.map((_,i)=>document.getElementById('bar-'+(i+1)));
+    const ioStage = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          const step = Number(e.target.dataset.step);
+          bars.forEach((b,i)=> b.classList.toggle('active', i < step));
+        }
+      });
+    }, {rootMargin: "-30% 0px -60% 0px"});
+    stages.forEach(s=>ioStage.observe(s));
+
+    // WhatsApp prefilled message from form
+    function openWhatsApp(){
+      const nombre = document.getElementById('f_nombre').value.trim();
+      const empresa = document.getElementById('f_empresa').value.trim();
+      const contacto = document.getElementById('f_contacto').value.trim();
+      const nota = document.getElementById('f_nota').value.trim();
+      const msg = encodeURIComponent(
+        `Hola, soy ${nombre}${empresa?` de ${empresa}`:""}. Me interesa un diagnóstico para automatizar mi negocio.\nContacto: ${contacto}\nDescripción: ${nota}`
+      );
+      const url = `https://wa.me/18094862675?text=${msg}`;
+      window.open(url, '_blank', 'noopener');
+    }
+
+    // Year in footer
+    document.getElementById('y').textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
